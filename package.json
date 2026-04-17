@@ -1,0 +1,37 @@
+{
+  "name": "ai-limit-checker",
+  "version": "1.0.0",
+  "description": "AI Limit Checker - Monitor your AI tools and API usage",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder --win",
+    "build:dir": "electron-builder --win --dir"
+  },
+  "author": "AI Limit Checker",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^41.2.1",
+    "electron-builder": "^26.8.1"
+  },
+  "dependencies": {
+    "axios": "^1.15.0",
+    "electron-store": "^8.1.0"
+  },
+  "build": {
+    "appId": "com.ailimit.checker",
+    "productName": "AI Limit Checker",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Limit Checker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0d0d1f 100%);
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 20px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .logo-text h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text p {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+    }
+
+    .tab-btn {
+      padding: 12px 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      color: #888;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #888;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(102, 126, 234, 0.3);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-icon {
+      font-size: 28px;
+    }
+
+    .card-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-connected {
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+    }
+
+    .status-disconnected {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .status-checking {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+    }
+
+    .card-model {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    .progress-container {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      height: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 8px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-low { background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .progress-medium { background: linear-gradient(90deg, #eab308, #fbbf24); }
+    .progress-high { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #666;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .card-error {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      padding: 10px;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 8px;
+    }
+
+    .card-info {
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 12px;
+    }
+
+    /* CLI Tools Styling */
+    .cli-stats {
+      display: flex;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .cli-stat {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 25px 50px;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .cli-stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .cli-stat-label {
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .cli-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cli-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px 24px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .cli-card:hover {
+      border-color: rgba(102, 126, 234, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .cli-card-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .cli-card-info {
+      flex: 1;
+    }
+
+    .cli-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .stats-compact {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stat-mini {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+
+    .btn-details {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-details:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .cli-install-compact {
+      color: #667eea;
+      font-size: 0.8rem;
+    }
+
+    .details-modal .modal {
+      max-width: 900px;
+      width: 95%;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .details-modal .modal-content {
+      max-width: 900px;
+      width: 100%;
+      max-height: 85vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .details-modal .modal-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .details-raw-full {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 12px;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.8rem;
+      white-space: pre;
+      color: #00d4ff;
+      overflow: auto;
+      max-height: 70vh;
+      min-height: 300px;
+    }
+
+    .details-raw-full::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .details-raw-full::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+
+    .details-raw-full::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.5);
+      border-radius: 4px;
+    }
+
+    .details-raw-full::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.8);
+    }
+
+    .cli-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .cli-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cli-icon {
+      font-size: 28px;
+    }
+
+    .cli-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .cli-model {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+
+    .cli-install {
+      color: #667eea;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .cli-install:hover {
+      text-decoration: underline;
+    }
+
+    .local-badge {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #22c55e;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      margin-left: 8px;
+    }
+
+    /* Settings Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #1a1a2e;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 550px;
+      width: 90%;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 1.8rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      font-size: 0.95rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-hint {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #444;
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 15px 20px;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .tabs {
+        width: 100%;
+      }
+
+      .tab-btn {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+      }
+
+      .main {
+        padding: 20px;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cli-stats {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .cli-stat {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">🤖</div>
+          <div class="logo-text">
+            <h1>AI Limit Checker</h1>
+            <p>Tüm AI araçlarınızı tek yerden izleyin</p>
+          </div>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn" onclick="showTab('api')">API Servisleri</button>
+          <button class="tab-btn active" onclick="showTab('cli')">CLI Araçları</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="checkAll()">✓ Tümünü Kontrol Et</button>
+        <button class="btn btn-secondary" onclick="openSettings()">⚙️ Ayarlar</button>
+      </div>
+
+      <div id="api-tab" class="tab-content">
+        <div id="api-cards" class="cards-grid"></div>
+      </div>
+
+      <div id="cli-tab" class="tab-content active">
+        <div class="cli-stats">
+          <div class="cli-stat">
+            <div class="cli-stat-value" id="cli-installed">-</div>
+            <div class="cli-stat-label">Kurulu</div>
+          </div>
+          <div class="cli-stat">
+            <div class="cli-stat-value" id="cli-total">-</div>
+            <div class="cli-stat-label">Toplam Araç</div>
+          </div>
+        </div>
+        <div id="cli-cards" class="cli-list"></div>
+      </div>
+    </main>
+
+    <footer>
+      <p>AI Limit Checker v1.0 | Electron</p>
+    </footer>
+  </div>
+
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">API Ayarları</h2>
+        <button class="modal-close" onclick="closeSettings()">×</button>
+      </div>
+      <form id="settingsForm">
+        <div class="form-group">
+          <label>OpenAI API Key</label>
+          <input type="password" id="openai_key" placeholder="sk-...">
+          <div class="form-hint">platform.openai.com adresinden alın</div>
+        </div>
+        <div class="form-group">
+          <label>Anthropic API Key</label>
+          <input type="password" id="anthropic_key" placeholder="sk-ant-...">
+          <div class="form-hint">console.anthropic.com adresinden alın</div>
+        </div>
+        <div class="form-group">
+          <label>Google Gemini API Key</label>
+          <input type="password" id="gemini_key" placeholder="AIza...">
+          <div class="form-hint">aistudio.google.com adresinden alın</div>
+        </div>
+        <div class="form-group">
+          <label>Qwen API Key</label>
+          <input type="password" id="qwen_key" placeholder="sk-...">
+          <div class="form-hint">dashscope.console.aliyun.com adresinden alın</div>
+        </div>
+        <div class="form-group">
+          <label>Opencodex API Key</label>
+          <input type="password" id="opencodex_key" placeholder="sk-...">
+          <div class="form-hint">Opencodex CLI için (OpenAI/Anthropic key)</div>
+        </div>
+        <div class="form-group">
+          <label>OpenCode API Key</label>
+          <input type="password" id="opencode_key" placeholder="sk-...">
+          <div class="form-hint">OpenCode CLI için (OpenAI/Anthropic key)</div>
+        </div>
+        <div class="form-group">
+          <label>Groq API Key</label>
+          <input type="password" id="groq_key" placeholder="gsk_...">
+          <div class="form-hint">console.groq.com adresinden alın</div>
+        </div>
+        <div class="form-group">
+          <label>Cohere API Key</label>
+          <input type="password" id="cohere_key" placeholder="...">
+          <div class="form-hint">dashboard.cohere.com adresinden alın</div>
+        </div>
+        <div class="form-group">
+          <label>OpenRouter API Key</label>
+          <input type="password" id="openrouter_key" placeholder="sk-or-...">
+          <div class="form-hint">openrouter.ai/keys adresinden alın</div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+          Kaydet
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="detailsModal">
+    <div class="modal details-modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="detailsTitle">Detaylı İstatistikler</h2>
+        <button class="modal-close" onclick="closeDetailsModal()">×</button>
+      </div>
+      <div id="detailsContent"></div>
+    </div>
+  </div>
+
+  <script>
+    const apiServices = [
+      { name: 'openai', displayName: 'OpenAI', icon: '🤖', model: 'GPT-4/ChatGPT' },
+      { name: 'anthropic', displayName: 'Anthropic', icon: '🧠', model: 'Claude 3' },
+      { name: 'gemini', displayName: 'Google Gemini', icon: '✨', model: 'Gemini Pro' },
+      { name: 'qwen', displayName: 'Qwen', icon: '🐉', model: 'Qwen Turbo' },
+      { name: 'groq', displayName: 'Groq', icon: '⚡', model: 'Llama 3/Gemma' },
+      { name: 'cohere', displayName: 'Cohere', icon: '🌊', model: 'Command R+' },
+      { name: 'openrouter', displayName: 'OpenRouter', icon: '🛤️', model: 'Multiple Models' }
+    ];
+
+    let currentTab = 'api';
+    let apiKeys = {};
+
+    function showTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tab + '-tab').classList.add('active');
+    }
+
+    function renderAPICards() {
+      const grid = document.getElementById('api-cards');
+      grid.innerHTML = apiServices.map(s => `
+        <div class="card" id="card-${s.name}">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-icon">${s.icon}</span>
+              <span class="card-name">${s.displayName}</span>
+            </div>
+            <span class="status-badge status-checking" id="status-${s.name}">Kontrol ediliyor...</span>
+          </div>
+          <p class="card-model" id="model-${s.name}">Model: ${s.model}</p>
+          <div class="progress-container">
+            <div class="progress-bar progress-low" id="progress-${s.name}" style="width: 0%"></div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-value" id="used-${s.name}">-</div>
+              <div class="stat-label">Kullanılan</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value" id="limit-${s.name}">-</div>
+              <div class="stat-label">Limit</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value" id="remaining-${s.name}">-</div>
+              <div class="stat-label">Kalan</div>
+            </div>
+          </div>
+          <div class="card-error" id="error-${s.name}" style="display: none;"></div>
+          <div class="card-info" id="info-${s.name}" style="display: none;"></div>
+        </div>
+      `).join('');
+    }
+
+    async function checkAll() {
+      if (currentTab === 'api') {
+        await checkAPIServices();
+      } else {
+        await checkCLIServices();
+      }
+    }
+
+    async function checkAPIServices() {
+      apiKeys = await window.api.getApiKeys();
+      renderAPICards();
+
+      for (const service of apiServices) {
+        const key = apiKeys[service.name];
+        if (!key) {
+          updateAPICard(service.name, {
+            available: false,
+            error: 'API key eklenmedi'
+          });
+          continue;
+        }
+
+        let result;
+        switch (service.name) {
+          case 'openai': result = await window.api.checkOpenAI(key); break;
+          case 'anthropic': result = await window.api.checkAnthropic(key); break;
+          case 'gemini': result = await window.api.checkGemini(key); break;
+          case 'qwen': result = await window.api.checkQwen(key); break;
+          case 'groq': result = await window.api.checkGroq(key); break;
+          case 'cohere': result = await window.api.checkCohere(key); break;
+          case 'openrouter': result = await window.api.checkOpenRouter(key); break;
+        }
+
+        updateAPICard(service.name, result);
+      }
+    }
+
+    function updateAPICard(name, result) {
+      const statusEl = document.getElementById(`status-${name}`);
+      const modelEl = document.getElementById(`model-${name}`);
+      const progressEl = document.getElementById(`progress-${name}`);
+      const usedEl = document.getElementById(`used-${name}`);
+      const limitEl = document.getElementById(`limit-${name}`);
+      const remainingEl = document.getElementById(`remaining-${name}`);
+      const errorEl = document.getElementById(`error-${name}`);
+      const infoEl = document.getElementById(`info-${name}`);
+
+      if (result.available) {
+        statusEl.textContent = 'Bağlı';
+        statusEl.className = 'status-badge status-connected';
+        
+        if (result.model) modelEl.textContent = `Model: ${result.model}`;
+        
+        const percentage = result.limit > 0 ? Math.round((result.used / result.limit) * 100) : 0;
+        progressEl.style.width = percentage + '%';
+        progressEl.className = 'progress-bar ' + getProgressClass(percentage);
+        
+        usedEl.textContent = formatNumber(result.used);
+        limitEl.textContent = formatNumber(result.limit);
+        remainingEl.textContent = formatNumber(result.remaining);
+        
+        if (result.resetTime) {
+          infoEl.textContent = result.resetTime;
+          infoEl.style.display = 'block';
+        }
+      } else {
+        statusEl.textContent = 'Bağlı Değil';
+        statusEl.className = 'status-badge status-disconnected';
+        
+        if (result.error) {
+          errorEl.textContent = result.error;
+          errorEl.style.display = 'block';
+        }
+      }
+    }
+
+    async function checkCLIServices() {
+      const grid = document.getElementById('cli-cards');
+      grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      const tools = await window.api.checkCLITools();
+      
+      let installed = 0;
+      grid.innerHTML = tools.map((t, index) => {
+        if (t.installed) installed++;
+        
+        const percentage = t.percentage || 0;
+        const progressClass = getProgressClass(percentage);
+        
+        return `
+          <div class="cli-card" id="cli-${t.name}">
+            <div class="cli-card-main">
+              <span class="cli-icon">${getCLIIcon(t.name)}</span>
+              <div class="cli-card-info">
+                <div class="cli-name">
+                  ${t.displayName}
+                  ${t.isLocal ? '<span class="local-badge">Local</span>' : ''}
+                </div>
+                <div class="cli-model">${t.model || '-'}</div>
+              </div>
+              <span class="status-badge ${t.installed ? 'status-connected' : 'status-disconnected'}">
+                ${t.installed ? 'Kurulu' : 'Yok'}
+              </span>
+            </div>
+            
+            <div class="cli-card-actions">
+              ${t.used > 0 ? `
+                <div class="stats-compact">
+                  ${t.details?.sessions ? `<span class="stat-mini">📊 ${t.details.sessions}</span>` : ''}
+                  ${t.details?.messages ? `<span class="stat-mini">💬 ${t.details.messages}</span>` : ''}
+                  ${t.details?.totalCost ? `<span class="stat-mini">💰 ${t.details.totalCost}</span>` : ''}
+                  ${t.details?.input ? `<span class="stat-mini">⬇️ ${t.details.input}</span>` : ''}
+                  ${t.details?.output ? `<span class="stat-mini">⬆️ ${t.details.output}</span>` : ''}
+                </div>
+                <button class="btn-details" onclick="showDetailsModal('${t.name}', ${JSON.stringify(t.details || {}).replace(/"/g, '&quot;')}, ${JSON.stringify(t.rawOutput || '').replace(/"/g, '&quot;')})">
+                  📊 Detay
+                </button>
+              ` : ''}
+              ${!t.installed ? `<span class="cli-install-compact">${t.installCmd}</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('cli-installed').textContent = installed;
+      document.getElementById('cli-total').textContent = tools.length;
+    }
+
+    function getCLIIcon(name) {
+      const icons = {
+        gemini: '✨',
+        opencodex: '🔮',
+        opencode: '🤖',
+        aider: '🦉',
+        goose: '🦆',
+        cline: '🤖',
+        continue: '▶️',
+        codex: '💻',
+        cursor: '🎯',
+        llm: '📝',
+        ollama: '🦙'
+      };
+      return icons[name] || '🔧';
+    }
+
+    function getProgressClass(percentage) {
+      if (percentage < 50) return 'progress-low';
+      if (percentage < 80) return 'progress-medium';
+      return 'progress-high';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatNumber(num) {
+      if (num === 0 || num === undefined || num === null) return '-';
+      if (typeof num === 'string') return num;
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    async function openSettings() {
+      apiKeys = await window.api.getApiKeys();
+      Object.keys(apiKeys).forEach(k => {
+        const input = document.getElementById(k + '_key');
+        if (input) input.value = apiKeys[k] || '';
+      });
+      document.getElementById('settingsModal').classList.add('active');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('active');
+    }
+
+    document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const keys = {
+        openai: document.getElementById('openai_key').value,
+        anthropic: document.getElementById('anthropic_key').value,
+        gemini: document.getElementById('gemini_key').value,
+        qwen: document.getElementById('qwen_key').value,
+        opencodex: document.getElementById('opencodex_key').value,
+        opencode: document.getElementById('opencode_key').value,
+        groq: document.getElementById('groq_key').value,
+        cohere: document.getElementById('cohere_key').value,
+        openrouter: document.getElementById('openrouter_key').value
+      };
+      await window.api.saveApiKeys(keys);
+      closeSettings();
+      await checkAPIServices();
+    });
+
+    document.getElementById('settingsModal').addEventListener('click', (e) => {
+      if (e.target.id === 'settingsModal') closeSettings();
+    });
+
+    function showDetailsModal(name, details, rawOutput) {
+      const modal = document.getElementById('detailsModal');
+      const title = document.getElementById('detailsTitle');
+      const content = document.getElementById('detailsContent');
+      
+      title.textContent = name.charAt(0).toUpperCase() + name.slice(1) + ' - İstatistikler';
+      
+      let html = '';
+      
+      if (rawOutput) {
+        html = `<div class="details-raw-full">${escapeHtml(rawOutput)}</div>`;
+      } else {
+        html = '<p style="color: #888; text-align: center;">Detaylı bilgi bulunamadı</p>';
+      }
+      
+      content.innerHTML = html;
+      modal.classList.add('active');
+    }
+
+    function closeDetailsModal() {
+      document.getElementById('detailsModal').classList.remove('active');
+    }
+
+    document.getElementById('detailsModal').addEventListener('click', (e) => {
+      if (e.target.id === 'detailsModal') closeDetailsModal();
+    });
+
+    // Initialize
+    checkCLIServices();
+  </script>
+</body>
+</html>
