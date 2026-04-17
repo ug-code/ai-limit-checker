@@ -296,48 +296,65 @@
     }
 
     /* CLI Tools Styling */
-    .cli-stats {
-      display: flex;
-      gap: 30px;
-      margin-bottom: 30px;
+    .cli-install-compact {
+      color: #667eea;
+      font-size: 0.8rem;
     }
 
-    .cli-stat {
+    .cli-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 25px 50px;
-      border-radius: 16px;
-      text-align: center;
+      color: #888;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
     }
 
-    .cli-stat-value {
-      font-size: 2.5rem;
-      font-weight: 800;
+    .filter-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .filter-btn.active {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: white;
+      border-color: transparent;
     }
 
-    .cli-stat-label {
+    .cli-summary {
       color: #666;
-      margin-top: 5px;
+      font-size: 0.9rem;
     }
 
-    .cli-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .cli-summary span {
+      color: #667eea;
+      font-weight: 600;
     }
 
     .cli-card {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 20px 24px;
+      border-radius: 12px;
+      padding: 14px 18px;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 15px;
+      margin-bottom: 8px;
     }
 
     .cli-card:hover {
@@ -349,53 +366,79 @@
       flex: 1;
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 15px;
     }
 
     .cli-card-info {
       flex: 1;
+      min-width: 0;
     }
 
     .cli-card-actions {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .cli-icon {
+      font-size: 22px;
+    }
+
+    .cli-name {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cli-model {
+      color: #666;
+      font-size: 0.8rem;
+      margin-top: 2px;
     }
 
     .stats-compact {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
     .stat-mini {
       background: rgba(255, 255, 255, 0.05);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
       color: #aaa;
+    }
+
+    .stat-warning {
+      background: rgba(251, 191, 36, 0.2);
+      color: #fbbf24;
+    }
+
+    .stat-error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      font-weight: 600;
     }
 
     .btn-details {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border: none;
       color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
+      padding: 6px 12px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     .btn-details:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .cli-install-compact {
-      color: #667eea;
-      font-size: 0.8rem;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
     }
 
     .details-modal .modal {
@@ -648,13 +691,10 @@
         grid-template-columns: 1fr;
       }
 
-      .cli-stats {
+      .cli-toolbar {
         flex-direction: column;
-        gap: 15px;
-      }
-
-      .cli-stat {
-        padding: 20px;
+        gap: 10px;
+        align-items: flex-start;
       }
     }
   </style>
@@ -688,14 +728,13 @@
       </div>
 
       <div id="cli-tab" class="tab-content active">
-        <div class="cli-stats">
-          <div class="cli-stat">
-            <div class="cli-stat-value" id="cli-installed">-</div>
-            <div class="cli-stat-label">Kurulu</div>
+        <div class="cli-toolbar">
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter="installed" onclick="setCLIFilter('installed')">✓ Kurulu</button>
+            <button class="filter-btn" data-filter="all" onclick="setCLIFilter('all')">Tümü</button>
           </div>
-          <div class="cli-stat">
-            <div class="cli-stat-value" id="cli-total">-</div>
-            <div class="cli-stat-label">Toplam Araç</div>
+          <div class="cli-summary">
+            <span id="cli-installed">-</span>/<span id="cli-total">-</span> kurulu
           </div>
         </div>
         <div id="cli-cards" class="cli-list"></div>
@@ -789,6 +828,8 @@
 
     let currentTab = 'api';
     let apiKeys = {};
+    let cliFilter = 'installed';
+    let allCLITools = [];
 
     function showTab(tab) {
       currentTab = tab;
@@ -913,14 +954,36 @@
       const grid = document.getElementById('cli-cards');
       grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
-      const tools = await window.api.checkCLITools();
+      allCLITools = await window.api.checkCLITools();
+      renderCLICards();
+    }
+
+    function setCLIFilter(filter) {
+      cliFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+      });
+      renderCLICards();
+    }
+
+    function renderCLICards() {
+      const grid = document.getElementById('cli-cards');
+      const installed = allCLITools.filter(t => t.installed).length;
       
-      let installed = 0;
-      grid.innerHTML = tools.map((t, index) => {
-        if (t.installed) installed++;
-        
+      document.getElementById('cli-installed').textContent = installed;
+      document.getElementById('cli-total').textContent = allCLITools.length;
+
+      const filtered = cliFilter === 'installed' 
+        ? allCLITools.filter(t => t.installed)
+        : allCLITools;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<p style="color: #666; text-align: center; padding: 30px;">Kurulu araç bulunamadı</p>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(t => {
         const percentage = t.percentage || 0;
-        const progressClass = getProgressClass(percentage);
         
         return `
           <div class="cli-card" id="cli-${t.name}">
@@ -933,32 +996,38 @@
                 </div>
                 <div class="cli-model">${t.model || '-'}</div>
               </div>
-              <span class="status-badge ${t.installed ? 'status-connected' : 'status-disconnected'}">
-                ${t.installed ? 'Kurulu' : 'Yok'}
-              </span>
             </div>
             
             <div class="cli-card-actions">
-              ${t.used > 0 ? `
+              ${t.installed ? `
                 <div class="stats-compact">
-                  ${t.details?.sessions ? `<span class="stat-mini">📊 ${t.details.sessions}</span>` : ''}
-                  ${t.details?.messages ? `<span class="stat-mini">💬 ${t.details.messages}</span>` : ''}
-                  ${t.details?.totalCost ? `<span class="stat-mini">💰 ${t.details.totalCost}</span>` : ''}
-                  ${t.details?.input ? `<span class="stat-mini">⬇️ ${t.details.input}</span>` : ''}
-                  ${t.details?.output ? `<span class="stat-mini">⬆️ ${t.details.output}</span>` : ''}
+                  ${t.details?.sessions ? `<span class="stat-mini" title="Sessions">📊 ${t.details.sessions}</span>` : ''}
+                  ${t.details?.messages ? `<span class="stat-mini" title="Messages">💬 ${t.details.messages}</span>` : ''}
+                  ${t.details?.projectsCount ? `<span class="stat-mini" title="Projects">📁 ${t.details.projectsCount}</span>` : ''}
+                  ${t.details?.totalCost ? `<span class="stat-mini" title="Cost">💰 ${t.details.totalCost}</span>` : ''}
+                  ${t.details?.inputTokens ? `<span class="stat-mini" title="Input">⬇️ ${t.details.inputTokens}</span>` : ''}
+                  ${t.details?.outputTokens ? `<span class="stat-mini" title="Output">⬆️ ${t.details.outputTokens}</span>` : ''}
+                  ${t.details?.cachedTokens ? `<span class="stat-mini" title="Cached">🗄️ ${t.details.cachedTokens}</span>` : ''}
+                  ${t.details?.usedTokens ? `<span class="stat-mini" title="Total">📝 ${t.details.usedTokens}</span>` : ''}
+                  ${t.details?.usedPercent ? `<span class="stat-mini ${parseInt(t.details.usedPercent) > 80 ? 'stat-warning' : ''}" title="Usage">${t.details.usedPercent}</span>` : ''}
+                  ${t.details?.tier ? `<span class="stat-mini" title="Tier">🏷️ ${t.details.tier}</span>` : ''}
+                  ${t.details?.quotaExhausted ? `<span class="stat-mini stat-error" title="Quota">⚠️ Exhausted!</span>` : ''}
+                  ${t.details?.requests ? `<span class="stat-mini" title="Requests">🔄 ${t.details.requests}</span>` : ''}
+                  ${t.details?.installedModels ? `<span class="stat-mini" title="Models">📦 ${t.details.installedModels}</span>` : ''}
+                  ${t.details?.version ? `<span class="stat-mini" title="Version">v${t.details.version}</span>` : ''}
+                  ${t.resetInfo && t.resetInfo !== 'API key limit' && t.resetInfo !== 'Unlimited (Local)' ? `<span class="stat-mini">${t.resetInfo}</span>` : ''}
                 </div>
+                ${t.rawOutput ? `
                 <button class="btn-details" onclick="showDetailsModal('${t.name}', ${JSON.stringify(t.details || {}).replace(/"/g, '&quot;')}, ${JSON.stringify(t.rawOutput || '').replace(/"/g, '&quot;')})">
-                  📊 Detay
+                  Detay
                 </button>
+                ` : ''}
               ` : ''}
               ${!t.installed ? `<span class="cli-install-compact">${t.installCmd}</span>` : ''}
             </div>
           </div>
         `;
       }).join('');
-
-      document.getElementById('cli-installed').textContent = installed;
-      document.getElementById('cli-total').textContent = tools.length;
     }
 
     function getCLIIcon(name) {

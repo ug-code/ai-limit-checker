@@ -29,7 +29,7 @@ const SERVICE_MAP = {
   opencodex: checkOpencodex
 };
 
-async function checkAllCLITools() {
+async function checkAllCLITools(apiKeys = {}) {
   const results = [];
   
   for (const tool of TOOLS) {
@@ -37,7 +37,7 @@ async function checkAllCLITools() {
     
     if (checker) {
       try {
-        const result = await checker();
+        const result = await checker(apiKeys);
         result.installCmd = tool.installCmd;
         results.push(result);
       } catch (err) {

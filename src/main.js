@@ -262,7 +262,8 @@ ipcMain.handle('check-openrouter', async (event, apiKey) => {
 
 ipcMain.handle('check-cli-tools', async () => {
   const { checkAllCLITools } = require('../services');
-  return await checkAllCLITools();
+  const apiKeys = store.get('apiKeys') || {};
+  return await checkAllCLITools(apiKeys);
 });
 
 ipcMain.handle('open-external', (event, url) => {
